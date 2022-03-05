@@ -3,7 +3,9 @@
     <v-app> 
       <v-content>
         <Menu/>
-        <router-view/>
+        <div id="view">
+          <router-view/>
+        </div>
       </v-content>
     </v-app>
   </div>
@@ -22,12 +24,15 @@ export default {
 
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css?family=Karla:300,400,700&display=swap');
-// @import url('https://fonts.googleapis.com/css?family=Comfortaa&display=swap');
 
 $body-font-family: 'Karla';
 $title-font: 'Karla';
 
-.v-application {
+html {
+  overflow-y: hidden !important;
+}
+
+#app .v-application {
   font-family: $body-font-family, sans-serif !important;
 }
 
@@ -35,7 +40,34 @@ $title-font: 'Karla';
   background-color: #F6F6F6;
 }
 
-.v-application .title {
-    font-family: $title-font, sans-serif !important;
+#app .v-application .title {
+  font-weight: 600;
+  font-family: $title-font, sans-serif !important;
+}
+
+#app .v-application .header {
+  font-weight: 600;
+  font-size: 26px;
+  font-family: $title-font, sans-serif !important;
+}
+
+#app .v-application .subheader {
+  font-weight: 500;
+  font-size: 16px;
+  color: #747474;
+  line-height: initial;
+  font-family: $title-font, sans-serif !important;
+}
+
+#view {
+  padding-top: 40px;
+  padding-left: 30px;
+  padding-right: 30px;
+  max-height: calc(100% - 70px);
+}
+
+.page-title {
+  font-size: 36px;
+  font-weight: 600;
 }
 </style>
