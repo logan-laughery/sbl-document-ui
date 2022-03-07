@@ -20,7 +20,10 @@
         </v-btn>
       </div>
     </div>
-    <Table/>
+    <Table
+      :columns="tableColumns"
+      :rows="rows"
+    />
   </div>
 </template>
 
@@ -33,10 +36,74 @@ export default {
     tableColumns: [
       {
         name: 'Name',
+        accessor: 'name'
       },
       {
         name: 'Content',
+        accessor: 'content'
       }
+    ],
+    rows: [
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        },
+        {
+            name: 'test',
+            content: 'asdf'
+        }
     ]
   }),
   components: {
