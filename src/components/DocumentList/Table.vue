@@ -8,6 +8,7 @@
       >
         {{column.name}}
       </div>
+      <div class="table-header-column action-column"/>
     </div>
     <div class="body">
       <Card>
@@ -21,7 +22,14 @@
               v-for="(column, i) in columns"
               :key="i"
             >
-              {{row[column.accessor]}}
+              {{column.modifier ? column.modifier(row[column.accessor]) : row[column.accessor]}}
+            </div>
+            <div class="table-row-column action-column">
+              <router-link :to="{path: `/document/${row.id}`}">
+                <SbrButton color="#EEF5FF">
+                  View
+                </SbrButton>
+              </router-link>
             </div>
           </div>
           <div
@@ -36,11 +44,13 @@
 
 <script>
 import Card from '@/components/Shared/Card';
+import SbrButton from '@/components/Shared/SbrButton';
 
 export default {
   name: 'Table',
   components: {
     Card,
+    SbrButton,
   },
   props: ['columns', 'rows'],
 };
@@ -50,6 +60,7 @@ export default {
 .table-row {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 
 .table-header {
@@ -62,12 +73,28 @@ export default {
 
 .table-header-column {
   flex-grow: 1;
+  flex-basis: 0
+}
+
+.table-header-column.action-column {
+  flex-grow: 0;
+  min-width: 80px;
+}
+
+.table-row-column.action-column a {
+  text-decoration: none !important;
 }
 
 .table-row-column {
-  font-size: 24px;
+  font-size: 22px;
   color: #000000;
   flex-grow: 1;
+  flex-basis: 0;
+}
+
+.table-row-column.action-column {
+  flex-grow: 0;
+  min-width: 80px;
 }
 
 .table-row-divider {

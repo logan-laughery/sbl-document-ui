@@ -11,36 +11,58 @@
         prepend-icon="mdi-magnify"
       />
       <div class="filters">
-        <v-btn
-          elevation="2"
-          rounded
-          color="white"
+        <SbrButton
+          color="#ffffff"
         >
           Add Filter    
-        </v-btn>
+        </SbrButton>
       </div>
     </div>
     <Table
       :columns="tableColumns"
-      :rows="rows"
+      :rows="documents"
     />
   </div>
 </template>
 
 <script>
 import Table from '@/components/DocumentList/Table';
+import SbrButton from '@/components/Shared/SbrButton';
+import gql from 'graphql-tag';
+import moment from 'moment';
 
+// https://arctype.com/blog/postgres-full-text-search/
 export default {
   name: 'DocumentList',
+  apollo: {
+    documents: gql`query Documents {
+      documents {
+        fileName
+        id
+        sbrId
+        orRequestDate
+        orRequestor
+      }
+    }`,
+  },
   data: () => ({
     tableColumns: [
       {
         name: 'Name',
-        accessor: 'name'
+        accessor: 'fileName'
       },
       {
-        name: 'Content',
-        accessor: 'content'
+        name: 'ID',
+        accessor: 'sbrId'
+      },
+      {
+        name: 'Request Date',
+        accessor: 'orRequestDate',
+        modifier: (value) => moment(value).format('DD/MM/YYYY')
+      },
+      {
+        name: 'Requestor',
+        accessor: 'orRequestor'
       }
     ],
     rows: [
@@ -108,6 +130,7 @@ export default {
   }),
   components: {
     Table,
+    SbrButton,
   },
 };
 </script>
