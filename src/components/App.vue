@@ -60,10 +60,13 @@ html {
 }
 
 #view {
+  margin-top: 70px;
   padding-top: 40px;
   padding-left: 30px;
   padding-right: 30px;
-  max-height: calc(100% - 70px);
+  padding-bottom: 40px;
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
 }
 
 .page-title {

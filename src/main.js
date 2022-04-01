@@ -6,6 +6,7 @@ import router from '@/plugins/router';
 import apolloProvider from '@/plugins/apollo';
 import ApolloClient from 'apollo-boost'
 import VueApollo from 'vue-apollo'
+import "pdfjs-dist/web/pdf_viewer.css";
 
 const apolloClient = new ApolloClient({
   // You should use an absolute URL here

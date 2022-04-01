@@ -5,6 +5,7 @@
         class="table-header-column"
         v-for="(column, i) in columns"
         :key="i"
+        :style="{ flexGrow: column.hasOwnProperty('grow') ? column.grow : 1 }"
       >
         {{column.name}}
       </div>
@@ -21,9 +22,9 @@
               class="table-row-column"
               v-for="(column, i) in columns"
               :key="i"
-            >
-              {{column.modifier ? column.modifier(row[column.accessor]) : row[column.accessor]}}
-            </div>
+              :style="{ flexGrow: column.hasOwnProperty('grow') ? column.grow : 1, display: column.hasOwnProperty('display') ? column.display : 'block' }"
+              v-html="column.modifier ? column.modifier(row[column.accessor]) : row[column.accessor]"
+            />
             <div class="table-row-column action-column">
               <router-link :to="{path: `/document/${row.id}`}">
                 <SbrButton color="#EEF5FF">
@@ -73,7 +74,10 @@ export default {
 
 .table-header-column {
   flex-grow: 1;
-  flex-basis: 0
+  flex-basis: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
 }
 
 .table-header-column.action-column {
@@ -90,11 +94,17 @@ export default {
   color: #000000;
   flex-grow: 1;
   flex-basis: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
+  white-space: nowrap;
+  position: relative;
 }
 
 .table-row-column.action-column {
   flex-grow: 0;
   min-width: 80px;
+  padding-right: 0px;
 }
 
 .table-row-divider {
@@ -103,5 +113,12 @@ export default {
   background-color: #d9d9d9;
   margin-top: 15px;
   margin-bottom: 15px;
+}
+
+.table-row-column b {
+  background-color: #FFEDAB;
+  border-radius: 35px;
+  padding: 2px 10px;
+  font-weight: 600;
 }
 </style>

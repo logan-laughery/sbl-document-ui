@@ -25,10 +25,12 @@
     "axios": "^0.19.2",
     "graphql": "^15.8.0",
     "moment": "^2.29.1",
+    "pdfjs-dist": "2.13.216",
     "qs": "^6.9.4",
     "vue-apollo": "^3.1.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.16.7",
     "@vue/cli-plugin-babel": "^4.5.0",
     "@vue/cli-plugin-eslint": "^4.5.0",
     "@vue/cli-service": "^4.5.0",
