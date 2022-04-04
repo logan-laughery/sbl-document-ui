@@ -5,7 +5,7 @@
     </div>
     <div class="filter-bar">
       <v-text-field
-        class="search"
+        class="search sbr-input"
         color="black"
         label="Search document text"
         prepend-icon="mdi-magnify"
@@ -146,13 +146,26 @@ export default {
   max-width: 500px;
 }
 
+.sbr-input .v-label {
+  font-size: 13px;
+}
+
+.sbr-input.v-input input {
+  font-size: 14px;
+  padding: 5px 0px;
+}
+
+.sbr-input.v-input .v-icon.v-icon {
+  font-size: 20px;
+}
+
 .filter-bar {
   display: flex;
   flex-direction: row;
 }
 
 .filters {
-  margin-top: 11px;
+  margin-top: 18px;
   margin-left: 35px;
 }
 
@@ -172,6 +185,7 @@ export default {
 }
 
 .table-footer {
+  font-size: 13px;
   margin-left: 5px;
   margin-right: 5px;
   margin-top: 10px;

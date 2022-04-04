@@ -67,9 +67,9 @@ export default {
 .table-header {
   display: flex;
   flex-direction: row;
-  padding-left: 21px;
+  padding-left: 19px;
   padding-right: 20px;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
 }
 
 .table-header-column {
@@ -78,11 +78,12 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 20px;
+  font-size: 14px;
 }
 
 .table-header-column.action-column {
   flex-grow: 0;
-  min-width: 80px;
+  min-width: 58px;
 }
 
 .table-row-column.action-column a {
@@ -90,7 +91,8 @@ export default {
 }
 
 .table-row-column {
-  font-size: 22px;
+  line-height: 28px;
+  font-size: 18px;
   color: #000000;
   flex-grow: 1;
   flex-basis: 0;
@@ -103,7 +105,7 @@ export default {
 
 .table-row-column.action-column {
   flex-grow: 0;
-  min-width: 80px;
+  min-width: 58px;
   padding-right: 0px;
 }
 
@@ -111,8 +113,8 @@ export default {
   width: 100%;
   height: 1px;
   background-color: #d9d9d9;
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 11px;
+  margin-bottom: 11px;
 }
 
 .table-row-column b {

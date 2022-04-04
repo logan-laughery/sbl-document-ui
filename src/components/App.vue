@@ -47,30 +47,31 @@ html {
 
 #app .v-application .header {
   font-weight: 600;
-  font-size: 26px;
+  font-size: 21px;
+  line-height: 25px;
   font-family: $title-font, sans-serif !important;
 }
 
 #app .v-application .subheader {
   font-weight: 500;
-  font-size: 16px;
+  font-size: 14px;
   color: #747474;
   line-height: initial;
   font-family: $title-font, sans-serif !important;
 }
 
 #view {
-  margin-top: 70px;
-  padding-top: 40px;
-  padding-left: 30px;
-  padding-right: 30px;
-  padding-bottom: 40px;
-  max-height: calc(100vh - 70px);
+  margin-top: 56px;
+  padding-top: 26px;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-bottom: 26px;
+  max-height: calc(100vh - 56px);
   overflow-y: auto;
 }
 
 .page-title {
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 600;
 }
 </style>

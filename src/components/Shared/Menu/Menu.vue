@@ -31,9 +31,9 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  height: 70px;
-  padding-left: 30px;
-  padding-right: 30px;
+  height: 56px;
+  padding-left: 24px;
+  padding-right: 24px;
   position: fixed;
   width: 100%;
   box-shadow: 0 1px 11px rgb(0 0 0 / 12%);

@@ -17,6 +17,6 @@ export default {
     border-width: 1px;
     border-style: solid;
     border-color: #d8d8d8;
-    padding: 20px;
+    padding: 18px;
 }
 </style>
