@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # View deployment logs at journalctl -S today -f -u githubDeployer.service
-npm ci --unsafe-perm=true --allow-root
+npm ci
 npm run build
