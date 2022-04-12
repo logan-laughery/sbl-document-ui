@@ -23,11 +23,14 @@
   "dependencies": {
     "apollo-boost": "^0.4.9",
     "axios": "^0.19.2",
+    "google-auth-library": "^7.14.1",
     "graphql": "^15.8.0",
     "moment": "^2.29.1",
     "pdfjs-dist": "2.13.216",
     "qs": "^6.9.4",
-    "vue-apollo": "^3.1.0"
+    "vue-apollo": "^3.1.0",
+    "vue-google-oauth2": "^1.5.8",
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.16.7",
