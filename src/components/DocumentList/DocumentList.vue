@@ -19,7 +19,13 @@
         </SbrButton>
       </div>
     </div>
-    <div v-if="$apollo.loading">Loading...</div>
+    <div v-if="$apollo.loading" class="loader">
+      <v-progress-circular
+        :size="50"
+        color="black"
+        indeterminate
+      ></v-progress-circular>
+    </div>
     <div v-else>
       <Table
         :columns="search.length > 1 ? searchColumns : tableColumns"
@@ -143,7 +149,7 @@ export default {
 
 <style>
 .search {
-  max-width: 500px;
+  max-width: 500px !important;
 }
 
 .sbr-input .v-label {
@@ -191,5 +197,20 @@ export default {
   margin-top: 10px;
   display: flex;
   justify-content: space-between;
+}
+
+#document-list {
+  min-height: 100%;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
 }
 </style>

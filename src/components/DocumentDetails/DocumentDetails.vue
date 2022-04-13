@@ -3,7 +3,7 @@
     <router-link :to="{path: `/documents`}" class="back-link">
       &lt; Back
     </router-link>
-    <div v-if="!$apollo.queries.document.loading">
+    <div v-if="!$apollo.queries.document.loading && document">
       <div class="page-title">
         Document {{document.sbrId}}
       </div>
@@ -88,6 +88,13 @@
         </v-row>
       </div>
     </div>
+    <div v-else class="loader">
+      <v-progress-circular
+        :size="50"
+        color="black"
+        indeterminate
+      ></v-progress-circular>
+    </div>
   </div>
 </template>
 
@@ -114,6 +121,16 @@ export default {
           emailDetails {
             id
           }
+          summary
+          relevanceScore
+          topics {
+            name
+          }
+          personnel {
+            firstName
+            lastName
+            email
+          }
           orRequestDate
           fileName
           driveId
@@ -130,8 +147,39 @@ export default {
             id: this.$route.params.id,
           }
         }
-      }
+      },
+      fetchPolicy: 'no-cache'
     },
+    // addDocumentTopic: {
+    //   query: gql`mutation UpdateDocument($data: DocumentUpdateInput!, $where: DocumentWhereUniqueInput!) {
+    //     updateDocument(data: $data, where: $where) {
+    //       topics {
+    //         name
+    //       }
+    //     }
+    //   }}`,
+    //   variables() {
+    //     // Use vue reactive properties here
+    //     return {
+    //       where: {
+    //         id: this.$route.params.id,
+    //       },
+    //       data: {
+    //         topics: {
+    //               "connectOrCreate": [
+    //                 {
+    //                   "create": {
+    //                     "name": null
+    //                   },
+    //                   "where": {
+    //                     "name": null
+    //                   }
+    //                 }
+    //               ],
+    //       }
+    //     }
+    //   },
+    // },
   }
 };
 </script>
@@ -159,4 +207,14 @@ export default {
   font-size: 13px;
 }
 
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
 </style>

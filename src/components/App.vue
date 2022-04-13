@@ -66,7 +66,7 @@ html {
   padding-left: 24px;
   padding-right: 24px;
   padding-bottom: 26px;
-  max-height: calc(100vh - 56px);
+  height: calc(100vh - 56px);
   overflow-y: auto;
 }
 
