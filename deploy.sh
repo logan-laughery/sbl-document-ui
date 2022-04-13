@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ~/.nvm/nvm.sh;
+source /home/logan/.nvm/nvm.sh;
 
 # View deployment logs at journalctl -S today -f -u githubDeployer.service
 npm ci
