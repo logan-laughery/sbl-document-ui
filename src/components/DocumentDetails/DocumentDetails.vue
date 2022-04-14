@@ -64,18 +64,40 @@
                   <div class="form-title">
                     Attributes
                   </div>
-                  <ReadOnlyField
+                  <ChipSelector
                     field="Categories"
-                    :value="document.fileName"
+                    inputTitle="Category"
+                    title="Add Category"
+                    color="#E8EDFF"
+                    :options="[]"
+                    :chips="['test']"
+                    @remove="removeCategory"
+                    @add="addCategory"
                   />
-                  <ReadOnlyField
+                  <ChipSelector
                     field="Personnel"
-                    :value="document.orRequestor"
+                    inputTitle="Personnel"
+                    title="Add Personnel"
+                    color="#FDEAD8"
+                    :options="[]"
+                    :chips="['test']"
+                    @remove="removePersonnel"
+                    @add="addPersonnel"
                   />
-                  <ReadOnlyField
-                    field="Summary"
-                    :value="document.orRequestDate"
-                  />
+                  <div class="field-container">
+                    Summary
+                    <div class="field-value">
+                      <v-textarea
+                        class="sbr-text-area"
+                        color="black"
+                        label="Summarize Document"
+                        single-line
+                        auto-grow
+                        rows="1"
+                        value="The Woodman set to work at once, and so sharp was his axe that the tree was soon chopped nearly through."
+                      />
+                    </div>
+                  </div>
                 </Card>
               </v-col>
             </v-row>
@@ -102,6 +124,7 @@
 import gql from 'graphql-tag';
 import Card from '@/components/Shared/Card';
 import PdfViewer from '@/components/DocumentDetails/PdfViewer';
+import ChipSelector from '@/components/DocumentDetails/ChipSelector';
 import ReadOnlyField from '@/components/Shared/ReadOnlyField';
 
 export default {
@@ -109,7 +132,8 @@ export default {
   components: {
     Card,
     ReadOnlyField,
-    PdfViewer
+    PdfViewer,
+    ChipSelector
   },
   apollo: {
     document: {
@@ -180,6 +204,20 @@ export default {
     //     }
     //   },
     // },
+  },
+  methods: {
+    addCategory(event) {
+      console.error(event);
+    },
+    removeCategory(event) {
+      console.error(event);
+    },
+    addPersonnel(event) {
+      console.error(event);
+    },
+    removePersonnel(event) {
+      console.error(event);
+    }
   }
 };
 </script>
@@ -216,5 +254,14 @@ export default {
   width: 100%;
   left: 0;
   top: 0;
+}
+
+.sbr-text-area {
+  padding-top: 0px;
+  margin-top: 0px;
+}
+
+.sbr-text-area textarea {
+  line-height: 1.5;
 }
 </style>
