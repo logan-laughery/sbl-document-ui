@@ -35,4 +35,11 @@ export default {
   padding: 12px;
   min-width: 56px;
 }
+
+.sbr-btn.v-chip {
+  padding: 8px;
+  height: 30px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
 </style>

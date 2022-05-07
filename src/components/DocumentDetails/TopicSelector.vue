@@ -6,7 +6,7 @@
       max-width="300px"
     >
       <template v-slot:activator="{ on }">
-        <div class="field-container">
+        <div class="field-container chip-selector">
           {{field}}
           <div class="field-value">
             <SbrChip
@@ -49,7 +49,7 @@
           </SbrButton>
           <SbrButton
             color="#CBFFBE"
-            @click="addChip(model)"
+            @click="addChip"
           >
             {{title}}
           </SbrButton>
@@ -71,10 +71,10 @@ export default {
   },
   props: ['chips', 'field', 'color', 'title', 'inputTitle', 'options'],
   methods: {
-    addChip(chip) {
+    addChip() {
+      this.dialog = false;
       this.$nextTick(() => {
-        this.$emit('add', chip);
-        this.dialog = false;
+        this.$emit('add', this.model || this.search);
       });
     }
   },
@@ -97,5 +97,9 @@ export default {
 
 .chip-dialog .v-card__actions {
   padding: 0px !important;
+}
+
+.chip-selector .sbr-btn {
+  margin-bottom: 5px;
 }
 </style>

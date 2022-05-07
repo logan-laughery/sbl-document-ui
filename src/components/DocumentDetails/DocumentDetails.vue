@@ -64,22 +64,27 @@
                   <div class="form-title">
                     Attributes
                   </div>
-                  <ChipSelector
-                    field="Categories"
-                    inputTitle="Category"
-                    title="Add Category"
+                  <TopicSelector
+                    field="Topics"
+                    inputTitle="Topic"
+                    title="Add Topic"
                     color="#E8EDFF"
                     :options="[]"
-                    :chips="['test']"
-                    @remove="removeCategory"
-                    @add="addCategory"
+                    :chips="document.topics.map(({name}) => name)"
+                    @remove="removeTopic"
+                    @add="addTopic"
                   />
-                  <ChipSelector
+                  <PersonnelSelector
                     field="Personnel"
                     inputTitle="Personnel"
                     title="Add Personnel"
                     color="#FDEAD8"
-                    :options="[]"
+                    :options="[{
+                      firstName: 'John',
+                      lastName: 'Doe',
+                      email: 'jd@jd.com',
+                      id: 1
+                    }]"
                     :chips="['test']"
                     @remove="removePersonnel"
                     @add="addPersonnel"
@@ -117,6 +122,22 @@
         indeterminate
       ></v-progress-circular>
     </div>
+    <v-snackbar
+      v-model="snackbar"
+      color="red accent-1"
+      rounded="pill"
+    >
+      Request failed.  Please try again.
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -124,7 +145,8 @@
 import gql from 'graphql-tag';
 import Card from '@/components/Shared/Card';
 import PdfViewer from '@/components/DocumentDetails/PdfViewer';
-import ChipSelector from '@/components/DocumentDetails/ChipSelector';
+import TopicSelector from '@/components/DocumentDetails/TopicSelector';
+import PersonnelSelector from '@/components/DocumentDetails/PersonnelSelector';
 import ReadOnlyField from '@/components/Shared/ReadOnlyField';
 
 export default {
@@ -133,8 +155,12 @@ export default {
     Card,
     ReadOnlyField,
     PdfViewer,
-    ChipSelector
+    TopicSelector,
+    PersonnelSelector
   },
+  data: () => ({
+    snackbar: false,
+  }),
   apollo: {
     document: {
       query: gql`query Document($where: DocumentWhereUniqueInput!) {
@@ -174,46 +200,85 @@ export default {
       },
       fetchPolicy: 'no-cache'
     },
-    // addDocumentTopic: {
-    //   query: gql`mutation UpdateDocument($data: DocumentUpdateInput!, $where: DocumentWhereUniqueInput!) {
-    //     updateDocument(data: $data, where: $where) {
-    //       topics {
-    //         name
-    //       }
-    //     }
-    //   }}`,
-    //   variables() {
-    //     // Use vue reactive properties here
-    //     return {
-    //       where: {
-    //         id: this.$route.params.id,
-    //       },
-    //       data: {
-    //         topics: {
-    //               "connectOrCreate": [
-    //                 {
-    //                   "create": {
-    //                     "name": null
-    //                   },
-    //                   "where": {
-    //                     "name": null
-    //                   }
-    //                 }
-    //               ],
-    //       }
-    //     }
-    //   },
-    // },
   },
   methods: {
-    addCategory(event) {
+    async safeMutation(args) {
+      try {
+        await this.$apollo.mutate(args)
+      } catch (err) {
+        this.snackbar = true;
+      }
+    },
+    async addTopic(topicName) {
+      await this.safeMutation({
+        mutation: gql`mutation UpdateDocument($data: DocumentUpdateInput!, $where: DocumentWhereUniqueInput!) {
+          updateDocument(data: $data, where: $where) {
+            topics {
+              name
+            }
+          }
+        }`,
+        variables: {
+          where: {
+            id: this.document.id
+          },
+          data: {
+            topics: {
+              connectOrCreate: [
+                {
+                  create: {
+                    name: topicName
+                  },
+                  where: {
+                    name: topicName
+                  }
+                }
+              ]
+            }
+          }
+        },
+        update: (store, { data: { updateDocument } }) => {
+          this.document.topics = updateDocument.topics;
+        },
+      });
+    },
+    removeTopic(event) {
       console.error(event);
     },
-    removeCategory(event) {
-      console.error(event);
-    },
-    addPersonnel(event) {
-      console.error(event);
+    async addPersonnel(event) {
+      await this.safeMutation('addPersonnel', {
+        mutation: gql`mutation UpdateDocument($data: DocumentUpdateInput!, $where: DocumentWhereUniqueInput!) {
+          updateDocument(data: $data, where: $where) {
+            personnel {
+              firstName
+              lastName
+              email
+            }
+          }
+        }`,
+        variables: {
+          where: {
+            id: this.document.id
+          },
+          data: {
+            personnel: {
+              connectOrCreate: [
+                {
+                  create: {
+                    name: topicName
+                  },
+                  where: {
+                    name: topicName
+                  }
+                }
+              ]
+            }
+          }
+        },
+        update: (store, { data: { updateDocument } }) => {
+          this.document.personnel = updateDocument.personnel;
+        },
+      });
     },
     removePersonnel(event) {
       console.error(event);
