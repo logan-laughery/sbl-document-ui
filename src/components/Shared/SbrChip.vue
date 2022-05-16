@@ -6,6 +6,7 @@
       close
       :color="color || '#ffffff'"
       @click:close="$emit('close')"
+      @click="$emit('click')"
     >
       <slot/>
     </v-chip>

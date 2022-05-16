@@ -69,8 +69,8 @@
                     inputTitle="Topic"
                     title="Add Topic"
                     color="#E8EDFF"
-                    :options="[]"
-                    :chips="document.topics.map(({name}) => name)"
+                    :options="topics.map(({name}) => name)"
+                    :chips="document.topics.map(({name, id}) => ({text: name, id}))"
                     @remove="removeTopic"
                     @add="addTopic"
                   />
@@ -79,13 +79,8 @@
                     inputTitle="Personnel"
                     title="Add Personnel"
                     color="#FDEAD8"
-                    :options="[{
-                      firstName: 'John',
-                      lastName: 'Doe',
-                      email: 'jd@jd.com',
-                      id: 1
-                    }]"
-                    :chips="['test']"
+                    :options="personnel"
+                    :chips="document.personnel.map(({firstName, lastName, id}) => ({text: `${firstName} ${lastName}`, id}))"
                     @remove="removePersonnel"
                     @add="addPersonnel"
                   />
@@ -99,7 +94,8 @@
                         single-line
                         auto-grow
                         rows="1"
-                        value="The Woodman set to work at once, and so sharp was his axe that the tree was soon chopped nearly through."
+                        :value="document.summary"
+                        @input="debouncedSumaryUpdate"
                       />
                     </div>
                   </div>
@@ -149,6 +145,14 @@ import TopicSelector from '@/components/DocumentDetails/TopicSelector';
 import PersonnelSelector from '@/components/DocumentDetails/PersonnelSelector';
 import ReadOnlyField from '@/components/Shared/ReadOnlyField';
 
+function debounce(func, timeout = 300){
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+  };
+}
+
 export default {
   name: 'DocumentDetails',
   components: {
@@ -162,6 +166,38 @@ export default {
     snackbar: false,
   }),
   apollo: {
+    personnel: {
+      query: gql`query Query($by: [PersonnelScalarFieldEnum!]!) {
+        groupByPersonnel(by: $by) {
+          _min {
+            id
+            firstName
+            lastName
+            email
+          }
+        }
+      }`,
+      variables() {
+        return {
+          by: ["email", "firstName", "lastName"]
+        }
+      },
+      update: data => data.groupByPersonnel.map(({_min}) => _min)
+    },
+    topics: {
+      query: gql`query Query($by: [TopicScalarFieldEnum!]!) {
+        groupByTopic(by: $by) {
+          id
+          name
+        }
+      }`,
+      variables() {
+        return {
+          by: ["id", "name"]
+        }
+      },
+      update: data => data.groupByTopic
+    },
     document: {
       query: gql`query Document($where: DocumentWhereUniqueInput!) {
         document(where: $where) {
@@ -174,9 +210,11 @@ export default {
           summary
           relevanceScore
           topics {
+            id
             name
           }
           personnel {
+            id
             firstName
             lastName
             email
@@ -215,6 +253,7 @@ export default {
           updateDocument(data: $data, where: $where) {
             topics {
               name
+              id
             }
           }
         }`,
@@ -242,14 +281,60 @@ export default {
         },
       });
     },
-    removeTopic(event) {
-      console.error(event);
+    async removeTopic(event) {
+      await this.safeMutation({
+        mutation: gql`mutation UpdateDocument($data: DocumentUpdateInput!, $where: DocumentWhereUniqueInput!) {
+          updateDocument(data: $data, where: $where) {
+            topics {
+              name
+              id
+            }
+          }
+        }`,
+        variables: {
+          where: {
+            id: this.document.id
+          },
+          data: {
+            topics: {
+              disconnect: [
+                {
+                  id: event.id
+                }
+              ]
+            }
+          }
+        },
+        update: (store, { data: { updateDocument } }) => {
+          this.document.topics = updateDocument.topics;
+        },
+      });
     },
     async addPersonnel(event) {
-      await this.safeMutation('addPersonnel', {
+      console.error(event);
+      const connectOrCreate = event.id ? 
+        {
+          connect: [
+            {
+              id: event.id
+            }
+          ]
+        } :
+        {
+          create: [
+            {
+              lastName: event.lastName,
+              firstName: event.firstName,
+              email: event.email
+            }
+          ]
+        };
+
+      await this.safeMutation({
         mutation: gql`mutation UpdateDocument($data: DocumentUpdateInput!, $where: DocumentWhereUniqueInput!) {
           updateDocument(data: $data, where: $where) {
             personnel {
+              id
               firstName
               lastName
               email
@@ -262,16 +347,7 @@ export default {
           },
           data: {
             personnel: {
-              connectOrCreate: [
-                {
-                  create: {
-                    name: topicName
-                  },
-                  where: {
-                    name: topicName
-                  }
-                }
-              ]
+              ...connectOrCreate
             }
           }
         },
@@ -280,10 +356,63 @@ export default {
         },
       });
     },
-    removePersonnel(event) {
-      console.error(event);
+    async removePersonnel(event) {
+      await this.safeMutation({
+        mutation: gql`mutation UpdateDocument($data: DocumentUpdateInput!, $where: DocumentWhereUniqueInput!) {
+          updateDocument(data: $data, where: $where) {
+            personnel {
+              id
+              firstName
+              lastName
+              email
+            }
+          }
+        }`,
+        variables: {
+          where: {
+            id: this.document.id
+          },
+          data: {
+            personnel: {
+              disconnect: [{
+                id: event.id
+              }]
+            }
+          }
+        },
+        update: (store, { data: { updateDocument } }) => {
+          this.document.personnel = updateDocument.personnel;
+        },
+      });
+    },
+    async updateSummary(summary) {
+      await this.safeMutation({
+        mutation: gql`mutation UpdateDocument($data: DocumentUpdateInput!, $where: DocumentWhereUniqueInput!) {
+          updateDocument(data: $data, where: $where) {
+            summary
+          }
+        }`,
+        variables: {
+          where: {
+            id: this.document.id
+          },
+          data: {
+            summary: {
+              set: summary
+            }
+          }
+        },
+      });
     }
-  }
+  },
+  created() {
+    this.debouncedSumaryUpdate = debounce((newValue, oldValue) => {
+      this.updateSummary(newValue);
+    }, 1000);
+  },
+  beforeUnmount() {
+    this.debouncedSumaryUpdate.cancel();
+  },
 };
 </script>
 

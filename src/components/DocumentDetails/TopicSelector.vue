@@ -13,10 +13,10 @@
               :color="color"
               @close="$emit('remove', chip)"
               v-for="chip in chips"
-              :key="chip"
+              :key="chip.text"
               v-on="on"
             >
-              {{chip}}
+              {{chip.text}}
             </SbrChip>
             <SbrButton
               @click="model = null; dialog = true"

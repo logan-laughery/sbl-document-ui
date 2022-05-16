@@ -4,7 +4,7 @@
       elevation="0"
       rounded
       :color="color || '#ffffff'"
-      @click="$emit('click')"
+      @click="(event) => $emit('click', event)"
     >
       <slot/>
     </v-btn>

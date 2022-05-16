@@ -10,14 +10,21 @@
         label="Search document text"
         prepend-icon="mdi-magnify"
         v-model="search"
+        hint="A space between terms searches for documents with at least one matching term.  '&' searches for documents containing both terms.  '+' searches for terms appearing in sequence."
       />
-      <div class="filters">
-        <SbrButton
-          color="#ffffff"
-        >
-          Add Filter    
-        </SbrButton>
-      </div>
+      <FilterSelector
+        @add="addFilter"
+      />
+    </div>
+    <div class="filter-chips">
+      <FilterChip
+        v-for="(filter, i) in filters"
+        :key="i"
+        :filterConfig="filter.config"
+        :filterType="filter.type"
+        @updateFilter="(event) => updateFilter(i, event)"
+        @deleteFilter="deleteFilter(i)"
+      />
     </div>
     <div v-if="$apollo.loading" class="loader">
       <v-progress-circular
@@ -47,17 +54,19 @@
 
 <script>
 import Table from '@/components/DocumentList/Table';
-import SbrButton from '@/components/Shared/SbrButton';
+import FilterSelector from '@/components/DocumentList/FilterSelector';
+import FilterChip from '@/components/DocumentList/FilterChip';
 import gql from 'graphql-tag';
 import moment from 'moment';
+import Vue from 'vue';
 
 // https://arctype.com/blog/postgres-full-text-search/
 export default {
   name: 'DocumentList',
   apollo: {
     searchDocuments: {
-      query: gql`query Documents($orderBy: [DocumentOrderByWithRelationInput!], $take: Int!, $skip: Int!, $search: String!) {
-        searchDocuments(orderBy: $orderBy, take: $take, skip: $skip, search: $search) {
+      query: gql`query Documents($orderBy: [DocumentOrderByWithRelationInput!], $take: Int!, $skip: Int!, $search: String!, $where: DocumentWhereInput) {
+        searchDocuments(orderBy: $orderBy, take: $take, skip: $skip, search: $search, where: $where) {
           fileName
           id
           sbrId
@@ -75,26 +84,63 @@ export default {
           ],
           take: 10,
           skip: this.skip,
-          search: this.search.length > 1 ? this.search : ''
+          search: this.search.length > 1 ? this.search : '',
+          where: this.whereCondition
         }
       }
     },
     searchDocumentsCount: {
-      query: gql`query DocumentSearchCount($search: String!) {
-        searchDocumentsCount(search: $search) {
+      query: gql`query DocumentSearchCount($search: String!, $where: DocumentWhereInput) {
+        searchDocumentsCount(search: $search, where: $where) {
           count
         }
       }`,
       variables() {
         return {
-          search: this.search.length > 1 ? this.search : ''
+          search: this.search.length > 1 ? this.search : '',
+          where: this.whereCondition
         }
       }
     }
   },
+  computed: {
+    whereCondition() {
+      if (!this.filters.length) {
+        return undefined;
+      }
+
+      const whereCondition = {};
+
+      this.filters.forEach(filter => {
+        const columnNames = {
+          'Date Requested': 'orRequestDate',
+          'Requestor': 'orRequestor'
+        };
+        const columnName = columnNames[filter.type];
+
+        const comparisons = {
+          'Before': 'lt',
+          'After': 'gt',
+          'Equals': 'equals'
+        };
+        const comparison = comparisons[filter.config.comparison];
+
+        if (!whereCondition[columnName]) {
+          whereCondition[columnName] = {};
+        }
+
+        whereCondition[columnName][comparison] = filter.config.search;
+      });
+
+      console.error(whereCondition);
+
+      return whereCondition;
+    },
+  },
   data: () => ({
     search: '',
     skip: 0,
+    filters: [],
     tableColumns: [
       {
         name: 'Name',
@@ -142,8 +188,20 @@ export default {
   }),
   components: {
     Table,
-    SbrButton,
+    FilterSelector,
+    FilterChip
   },
+  methods: {
+    addFilter(event) {
+      this.filters.push(event);
+    },
+    updateFilter(i, event) {
+      Vue.set(this.filters, i, event);
+    },
+    deleteFilter(i) {
+      this.filters.splice(i);
+    }
+  }
 };
 </script>
 
@@ -168,11 +226,6 @@ export default {
 .filter-bar {
   display: flex;
   flex-direction: row;
-}
-
-.filters {
-  margin-top: 18px;
-  margin-left: 35px;
 }
 
 .page-container {
@@ -212,5 +265,9 @@ export default {
   width: 100%;
   left: 0;
   top: 0;
+}
+
+.filter-chips:last-child {
+  padding-bottom: 20px;
 }
 </style>

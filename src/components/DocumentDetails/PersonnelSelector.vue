@@ -13,13 +13,13 @@
               :color="color"
               @close="$emit('remove', chip)"
               v-for="chip in chips"
-              :key="chip"
+              :key="chip.text"
               v-on="on"
             >
-              {{chip}}
+              {{chip.text}}
             </SbrChip>
             <SbrButton
-              @click="model = null; dialog = true"
+              @click="id = null; email = null; firstName = null; lastName = null; dialog = true"
             >
               Add
             </SbrButton>
@@ -30,35 +30,75 @@
         <div class="form-title">
           Personnel
         </div>
-        {{id}}
         <v-combobox
           v-model="email"
           :items="options"
           :search-input.sync="emailSearch"
-          :change="changePersonnel"
-          :update:search-input="(value) => this.emailSearch = value.email"
+          @change="(value) => changePersonnel(value, 'email')"
+          item-value="email"
+          item-text="email"
           hide-selected
           label="Email"
           color="black"
-        />
-
-        <!-- <v-combobox
+          autocomplete="none"
+        >
+          <template v-slot:item="{ item }">
+            <div class="personnel-item">
+              <div class="email">
+                {{item.email}}
+              </div>
+              <div class="name">
+                {{item.firstName}} {{item.lastName}}  
+              </div>
+            </div>
+          </template>
+        </v-combobox>
+        <v-combobox
           v-model="firstName"
           :items="options"
           :search-input.sync="firstNameSearch"
+          @change="(value) => changePersonnel(value, 'firstName')"
+          item-value="firstName"
+          item-text="firstName"
           hide-selected
           label="First Name"
           color="black"
-        />
-
+          autocomplete="none"
+        >
+          <template v-slot:item="{ item }">
+            <div class="personnel-item">
+              <div class="email">
+                {{item.email}}
+              </div>
+              <div class="name">
+                {{item.firstName}} {{item.lastName}}  
+              </div>
+            </div>
+          </template>
+        </v-combobox>
         <v-combobox
           v-model="lastName"
           :items="options"
           :search-input.sync="lastNameSearch"
+          @change="(value) => changePersonnel(value, 'lastName')"
+          item-value="lastName"
+          item-text="lastName"
           hide-selected
           label="Last Name"
           color="black"
-        /> -->
+          autocomplete="none"
+        >
+          <template v-slot:item="{ item }">
+            <div class="personnel-item">
+              <div class="email">
+                {{item.email}}
+              </div>
+              <div class="name">
+                {{item.firstName}} {{item.lastName}}  
+              </div>
+            </div>
+          </template>
+        </v-combobox>
 
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -94,11 +134,26 @@ export default {
     addChip() {
       this.dialog = false;
       this.$nextTick(() => {
-        this.$emit('add', this.model || this.search);
+        const personnel = {
+          id: this.id,
+          email: this.email || this.emailSearch,
+          firstName: this.firstName || this.firstNameSearch,
+          lastName: this.lastName || this.lastNameSearch,
+        };
+
+        this.$emit('add', personnel);
       });
     },
-    changePersonnel(values) {
-      console.error(values);
+    changePersonnel(value, name) {
+      if (value?.id) {
+        this.id = value.id;
+        this.email = value.email;
+        this.firstName = value.firstName;
+        this.lastName = value.lastName;
+      } else {
+        this.id = null;
+        this[name] = value;
+      }
     }
   },
   data() {
@@ -132,4 +187,13 @@ export default {
 .chip-selector .sbr-btn {
   margin-bottom: 5px;
 }
+
+.email {
+  font-weight: 600;
+}
+
+.name {
+  margin-top: -4px;
+}
+
 </style>
