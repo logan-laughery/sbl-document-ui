@@ -72,6 +72,8 @@ export default {
           sbrId
           orRequestDate
           orRequestor,
+          beginDate,
+          endDate,
           match
         }
       }`,
@@ -151,14 +153,15 @@ export default {
         accessor: 'sbrId'
       },
       {
-        name: 'Request Date',
-        accessor: 'orRequestDate',
-        modifier: (value) => moment(value).format('MM/DD/YYYY')
+        name: 'Start Date',
+        accessor: 'beginDate',
+        modifier: (value) => value && moment(value).format('MM/DD/YYYY')
       },
       {
-        name: 'Requestor',
-        accessor: 'orRequestor'
-      }
+        name: 'End Date',
+        accessor: 'endDate',
+        modifier: (value) => value && moment(value).format('MM/DD/YYYY')
+      },
     ],
     searchColumns: [
       {
