@@ -23,11 +23,15 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    session: undefined
+    session: undefined,
+    searchSettings: {}
   },
   mutations: {
     setSession(state, session) {
       state.session = session;
+    },
+    setSearchSettings(state, settings) {
+      state.searchSettings = settings;
     }
   }
 });

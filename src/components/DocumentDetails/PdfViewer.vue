@@ -10,10 +10,16 @@
         label="Search document text"
         prepend-icon="mdi-magnify"
         v-model="searchText"
+        :loading="searching"
       />
-      <!-- <div>
-        Match {{currentMatch}} / {{totalMatches}}
-      </div> -->
+      <!-- <button v-if="totalMatches > 0" @click="back" class="page-link">Prev</button> -->
+      <div v-if="searching">
+        {{totalMatches}} matches
+      </div>
+      <div v-if="!searching && searchText">
+        {{totalMatches}} matches
+      </div>
+      <!-- <button v-if="totalMatches > 0" @click="next" class="page-link">Next</button> -->
     </div>
     <div id="pdfViewer">
       <div class="pageContainerWrapper">
@@ -42,7 +48,10 @@ export default {
   mounted() {
     document.getElementById("pdfViewer").addEventListener('mousewheel', this.handleScroll);
     window.addEventListener('resize', this.setZoom);
-    this.loadPdf();
+
+    if (this.file) {
+      this.loadPdf();
+    }
   },
   beforeUnmount() {
     document.getElementById("pdfViewer").removeEventListener('mousewheel', this.handleScroll);
@@ -53,12 +62,23 @@ export default {
     eventBus: null,
     pageWidthScale: 1,
     desiredZoom: 1,
-    searchText: ''
+    searchText: '',
+    searching: false,
+    currentMatch: 0,
+    totalMatches: 0
   }),
   watch : {
     searchText: function (val) {
       this.search(val);
     },
+    file: {
+      immediate: true,
+      handler(val) {
+        if (!!val) {
+          this.loadPdf();
+        }
+      }
+    }
   },
   methods: {
     async loadPdf() {
@@ -108,6 +128,16 @@ export default {
         this.currentMatch = matchesCount.current;
         this.totalMatches = matchesCount.total;
       });
+      this.eventBus._on('updatefindcontrolstate', (state) => {
+        console.error(state);
+        if (state.state === 0 || state.state === 1) {
+          this.searching = false;
+        }
+
+        if (state.state === 1) {
+          this.totalMatches = 0;
+        }
+      });
     },
     handleScroll(e) {
       if (e.ctrlKey) {
@@ -132,9 +162,10 @@ export default {
         this.pageWidthScale = pageWidthScale;
     },
     search(query) {
+      this.searching = true;
       this.eventBus.dispatch("find", {
         caseSensitive: false, 
-        findPrevious: undefined,
+        findPrevious: false,
         highlightAll: true, 
         phraseSearch: true,
         query
@@ -148,13 +179,13 @@ export default {
       // });
     },
     next() {
-      console.error("searching", this.eventBus);
-      this.eventBus.dispatch("find", {
+      console.error("searching", this.searchText);
+      this.eventBus.dispatch("findagain", {
         caseSensitive: false, 
-        findPrevious: undefined,
+        findPrevious: false,
         highlightAll: true, 
         phraseSearch: true,
-        query: "fields"
+        query: this.searchText
       });
       // this.pdfViewer.findController.executeCommand('find', {
       //     caseSensitive: false, 
@@ -165,13 +196,13 @@ export default {
       // });
     },
     back() {
-      console.error("searching", this.pdfViewer.findController);
-      this.eventBus.dispatch("find", {
+      console.error("searching", this.searchText);
+      this.eventBus.dispatch("findagain", {
         caseSensitive: false, 
-        findPrevious: undefined,
+        findPrevious: true,
         highlightAll: true, 
         phraseSearch: true,
-        query: "fields"
+        query: this.searchText
       });
       // this.pdfViewer.findController.executeCommand('find', {
       //     caseSensitive: false, 

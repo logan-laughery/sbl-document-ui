@@ -53,10 +53,15 @@
                     field="Requested Date"
                     :value="document.orRequestDate"
                   />
-                  <ReadOnlyField
-                    field="Drive ID"
-                    :value="document.driveId"
-                  />
+                  <div class="field-container">
+                    Drive ID
+                    <div class="field-value" v-if="document.driveId">
+                      <a target="_blank" :href="document.driveId">{{document.driveFilePath}}</a>
+                    </div>
+                    <div class="field-value" v-else>
+                      {{document.driveFilePath}}
+                    </div>
+                  </div>
                 </Card>
               </v-col>
               <v-col cols="12">
@@ -105,7 +110,7 @@
           </v-col>
           <v-col cols="12" md="6">
             <PdfViewer
-              :file="document.documentContent.file"
+              :file="file"
             />
           </v-col>
         </v-row>
@@ -164,6 +169,7 @@ export default {
   },
   data: () => ({
     snackbar: false,
+    file: null
   }),
   apollo: {
     personnel: {
@@ -222,10 +228,9 @@ export default {
           orRequestDate
           fileName
           driveId
-          documentContent {
-            text
-            file
-          }
+          driveFilePath
+          beginDate
+          endDate
         }
       }`,
       variables() {
@@ -238,6 +243,19 @@ export default {
       },
       fetchPolicy: 'no-cache'
     },
+  },
+  computed: {
+    documentId() {
+      return this.$route.params.id;
+    }
+  },
+  watch: {
+    documentId: {
+      immediate: true,
+      async handler(newDocumentId) {
+        this.file = `https://www.open-records-database.save-bloody-run.com/api/documentFile/${newDocumentId}`;
+      }
+    }
   },
   methods: {
     async safeMutation(args) {

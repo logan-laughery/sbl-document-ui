@@ -22,7 +22,7 @@
       </template>
       <v-list rounded dense>
         <v-list-item
-          v-for="(filter, index) in ['Date Requested', 'Requestor']"
+          v-for="(filter, index) in ['Begin Date', 'End Date']"
           :key="index"
           @click="openDialog(filter)"
         >
@@ -87,6 +87,14 @@ export default {
     openDialog(filter) {
       const filterOptions = {
         'Date Requested': {
+          comparison: null,
+          date: null
+        },
+        'Begin Date': {
+          comparison: null,
+          date: null
+        },
+        'End Date': {
           comparison: null,
           date: null
         },

@@ -9,7 +9,8 @@
         color="black"
         label="Search document text"
         prepend-icon="mdi-magnify"
-        v-model="search"
+        @input="updateSearch"
+        value="search"
         hint="A space between terms searches for documents with at least one matching term.  '&' searches for documents containing both terms.  '+' searches for terms appearing in sequence."
       />
       <FilterSelector
@@ -43,9 +44,9 @@
           {{searchDocumentsCount.count}} Documents
         </div>
         <div class="page-container" v-if="searchDocumentsCount.count > 0">
-          <button v-if="skip > 0" @click="skip = skip - 10" class="page-link">Prev</button>
+          <button v-if="skip > 0" @click="updateSkip(skip - 10)" class="page-link">Prev</button>
           <div class="page-link">Page {{(skip / 10) + 1}} / {{Math.ceil(searchDocumentsCount.count / 10)}}</div>
-          <button v-if="(skip / 10) + 1 < Math.ceil(searchDocumentsCount.count / 10)" @click="skip = skip + 10" class="page-link">Next</button>
+          <button v-if="(skip / 10) + 1 < Math.ceil(searchDocumentsCount.count / 10)" @click="updateSkip(skip + 10)" class="page-link">Next</button>
         </div>
       </div>
       </div>
@@ -59,6 +60,7 @@ import FilterChip from '@/components/DocumentList/FilterChip';
 import gql from 'graphql-tag';
 import moment from 'moment';
 import Vue from 'vue';
+import { mapState } from 'vuex';
 
 // https://arctype.com/blog/postgres-full-text-search/
 export default {
@@ -86,7 +88,7 @@ export default {
           ],
           take: 10,
           skip: this.skip,
-          search: this.search.length > 1 ? this.search : '',
+          search: this.search?.length > 1 ? this.search : '',
           where: this.whereCondition
         }
       }
@@ -99,13 +101,13 @@ export default {
       }`,
       variables() {
         return {
-          search: this.search.length > 1 ? this.search : '',
+          search: this.search?.length > 1 ? this.search : '',
           where: this.whereCondition
         }
       }
     }
   },
-  computed: {
+  computed: mapState({
     whereCondition() {
       if (!this.filters.length) {
         return undefined;
@@ -116,7 +118,9 @@ export default {
       this.filters.forEach(filter => {
         const columnNames = {
           'Date Requested': 'orRequestDate',
-          'Requestor': 'orRequestor'
+          'Requestor': 'orRequestor',
+          'Begin Date': 'beginDate',
+          'End Date': 'endDate'
         };
         const columnName = columnNames[filter.type];
 
@@ -138,11 +142,13 @@ export default {
 
       return whereCondition;
     },
-  },
+    searchSettings: (state) => state.searchSettings,
+    filters() { return this.searchSettings?.filters || [] },
+    skip() { return this.searchSettings?.skip || 0 },
+    search() { return this.searchSettings?.search || '' },
+  }),
   data: () => ({
-    search: '',
-    skip: 0,
-    filters: [],
+    searchModel: '',
     tableColumns: [
       {
         name: 'Name',
@@ -196,13 +202,43 @@ export default {
   },
   methods: {
     addFilter(event) {
-      this.filters.push(event);
+      this.$store.commit('setSearchSettings', {
+        ...this.searchSettings,
+        filters: [...this.filters, event]
+      });
+    },
+    updateSearch(search) {
+      console.error(search);
+      this.$store.commit('setSearchSettings', {
+        ...this.searchSettings,
+        search
+      });
+    },
+    updateSkip(skip) {
+      this.$store.commit('setSearchSettings', {
+        ...this.searchSettings,
+        skip
+      });
     },
     updateFilter(i, event) {
-      Vue.set(this.filters, i, event);
+      const updatedFilters = [...this.filters];
+      
+      Vue.set(updatedFilters, i, event);
+      
+      this.$store.commit('setSearchSettings', {
+        ...this.searchSettings,
+        filters: updatedFilters
+      });
     },
     deleteFilter(i) {
-      this.filters.splice(i);
+      const updatedFilters = [...this.filters];
+
+      updatedFilters.splice(i);
+      
+      this.$store.commit('setSearchSettings', {
+        ...this.searchSettings,
+        filters: updatedFilters
+      });
     }
   }
 };

@@ -70,6 +70,8 @@ export default {
       editFilterConfig: {},
       dialog: false,
       filterFormatters: {
+        'Begin Date': (value) => `Begin Date ${value.comparison} - ${value.search}`,
+        'End Date': (value) => `End Date ${value.comparison} - ${value.search}`,
         'Date Requested': (value) => `Date Requested ${value.comparison} - ${value.search}`,
         'Requestor': (value) => `Requestor Equals - ${value.search}`
       },

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="type === 'Date Requested'">
+    <div v-if="type === 'Date Requested' || type === 'Begin Date' || type === 'End Date'">
       <div class="field-container">
         Comparison
         <div class="field-value">
