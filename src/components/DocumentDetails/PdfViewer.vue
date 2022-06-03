@@ -3,7 +3,7 @@
     <div class="pdf-card-header">
       <div class="form-title">
         Document
-        <a class="blank-link" :href="file" :download="fileName" target="_blank">
+        <a class="blank-link" :href="downloadPath" :download="fileName" target="_blank">
           <v-icon>mdi-download</v-icon>
         </a>
       </div>
@@ -44,7 +44,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export default {
   name: 'PdfViewer',
-  props: ['file', 'fileName'],
+  props: ['file', 'fileName', 'downloadPath'],
   components: {
     Card
   },
@@ -221,7 +221,7 @@ export default {
 
 <style>
 .blank-link {
-  color: transparent;
+  color: transparent !important;
 }
 
 #pdfViewer {

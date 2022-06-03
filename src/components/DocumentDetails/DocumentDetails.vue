@@ -112,6 +112,7 @@
             <PdfViewer
               :file="file"
               :fileName="document.fileName"
+              :downloadPath="'/api/documentFile/' + documentId"
             />
           </v-col>
         </v-row>
