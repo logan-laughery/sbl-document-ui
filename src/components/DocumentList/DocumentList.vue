@@ -10,7 +10,7 @@
         label="Search document text"
         prepend-icon="mdi-magnify"
         @input="updateSearch"
-        value="search"
+        :value="search"
         hint="A space between terms searches for documents with at least one matching term.  '&' searches for documents containing both terms.  '+' searches for terms appearing in sequence."
       />
       <FilterSelector
