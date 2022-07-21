@@ -15,14 +15,16 @@
         v-model="searchText"
         :loading="searching"
       />
-      <!-- <button v-if="totalMatches > 0" @click="back" class="page-link">Prev</button> -->
-      <div v-if="searching">
-        {{totalMatches}} matches
+      <div class="match-container">
+        <div v-if="totalMatches === 0 && searchText">
+          0 Matches
+        </div>
+        <button v-if="totalMatches > 0 && currentMatch > 1" @click="back" class="page-link">Prev</button>
+        <div class="current-match" v-if="searchText && totalMatches > 0">
+          Match {{currentMatch}} / {{totalMatches}}
+        </div>
+        <button v-if="totalMatches > 0 && currentMatch < totalMatches" @click="next" class="page-link">Next</button>
       </div>
-      <div v-if="!searching && searchText">
-        {{totalMatches}} matches
-      </div>
-      <!-- <button v-if="totalMatches > 0" @click="next" class="page-link">Next</button> -->
     </div>
     <div id="pdfViewer">
       <div class="pageContainerWrapper">
@@ -67,8 +69,9 @@ export default {
     desiredZoom: 1,
     searchText: '',
     searching: false,
-    currentMatch: 0,
-    totalMatches: 0
+    currentMatch: 1,
+    totalMatches: 0,
+    matchedElements: []
   }),
   watch : {
     searchText: function (val) {
@@ -127,18 +130,34 @@ export default {
         once: true
       });
 
-      this.eventBus._on('updatefindmatchescount', ({matchesCount}) => {
-        this.currentMatch = matchesCount.current;
+      this.eventBus._on('updatefindmatchescount', (state) => {
+        const {matchesCount} = state;
+
+        this.currentMatch = 1;
         this.totalMatches = matchesCount.total;
+        this.matchedElements = document.getElementsByClassName("highlight");
+
+        if (this.matchedElements.length) {
+          this.matchedElements[0].scrollIntoView();
+        }
       });
       this.eventBus._on('updatefindcontrolstate', (state) => {
-        console.error(state);
         if (state.state === 0 || state.state === 1) {
           this.searching = false;
         }
 
         if (state.state === 1) {
           this.totalMatches = 0;
+          this.currentMatch = 1;
+        }
+
+        if (state.matchesCount.total !== this.totalMatches) {
+          this.totalMatches = state.matchesCount.total;
+          this.matchedElements = document.getElementsByClassName("highlight");
+
+          if (this.matchedElements.length) {
+            this.matchedElements[0].scrollIntoView();
+          }
         }
       });
     },
@@ -169,6 +188,7 @@ export default {
       this.eventBus.dispatch("find", {
         caseSensitive: false, 
         findPrevious: false,
+        scrollMatches: true,
         highlightAll: true, 
         phraseSearch: true,
         query
@@ -182,31 +202,50 @@ export default {
       // });
     },
     next() {
-      console.error("searching", this.searchText);
-      this.eventBus.dispatch("findagain", {
-        caseSensitive: false, 
-        findPrevious: false,
-        highlightAll: true, 
-        phraseSearch: true,
-        query: this.searchText
-      });
+      this.currentMatch  = this.currentMatch + 1;
+      this.matchedElements[this.currentMatch - 1].scrollIntoView();
+      // console.error("searching", this.searchText);
+      // this.eventBus.dispatch("findagain", {
+      //   caseSensitive: false, 
+      //   findPrevious: false,
+      //   scrollMatches: true,
+      //   highlightAll: true, 
+      //   phraseSearch: true,
+      //   query: this.searchText
+      // });
       // this.pdfViewer.findController.executeCommand('find', {
       //     caseSensitive: false, 
-      //     findPrevious: undefined,
+      //     findPrevious: false,
+      //     scrollMatches: true,
       //     highlightAll: true, 
-      //     phraseSearch: true, 
-      //     query: "fields"
+      //     phraseSearch: true,
+      //     query: this.searchText
+      // });
+      // console.error(this.pdfViewer);
+      // const match = {pageIndex: 2, matchIndex: 1};
+      // this.pdfViewer.currentPageNumber = 2;
+      // this.pdfViewer.findController._scrollMatches = true;
+      // this.pdfViewer.findController.selected.pageIdx = match.pageIndex;
+      // this.pdfViewer.findController.selected.matchIdx = match.matchIndex;
+
+      // this.pdfViewer.linkService.page = match.pageIndex + 1;
+      // this.eventBus.dispatch('updatetextlayermatches', {
+      //     pageIndex: match.pageIndex,
+      //     matchIndex: match.matchIndex
       // });
     },
     back() {
-      console.error("searching", this.searchText);
-      this.eventBus.dispatch("findagain", {
-        caseSensitive: false, 
-        findPrevious: true,
-        highlightAll: true, 
-        phraseSearch: true,
-        query: this.searchText
-      });
+      this.currentMatch = this.currentMatch - 1;
+      this.matchedElements[this.currentMatch - 1].scrollIntoView();
+      // console.error("searching", this.searchText);
+      // this.eventBus.dispatch("findagain", {
+      //   caseSensitive: false, 
+      //   findPrevious: true,
+      //   scrollMatches: true,
+      //   highlightAll: true, 
+      //   phraseSearch: true,
+      //   query: this.searchText
+      // });
       // this.pdfViewer.findController.executeCommand('find', {
       //     caseSensitive: false, 
       //     findPrevious: undefined,
@@ -264,5 +303,15 @@ export default {
   border-bottom-width: 1px;
   border-bottom-color: #d8d8d8;
   padding: 18px;
+}
+
+.current-match {
+  margin-left: 20px;
+}
+
+.match-container {
+  font-size: 13px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
